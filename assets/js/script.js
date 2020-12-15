@@ -5,7 +5,7 @@ const userFormEl = $("#searchCities");
 
 // Pull Local Storage/Generate New Search History
 var setupSearchHistory = function() {
-    let searchHistory = JSON.parse(localStorage.getItem("searchHistory"));
+    var searchHistory = JSON.parse(localStorage.getItem("searchHistory"));
 
     // Generate Base History if None
     if (searchHistory == null) {
@@ -13,7 +13,7 @@ var setupSearchHistory = function() {
         localStorage.setItem("searchHistory",JSON.stringify(searchHistory));
     }
 
-    let groupContainer = $(".list-group");
+    var groupContainer = $(".list-group");
     groupContainer.html("");
 
     // Appending Items to History
@@ -30,12 +30,12 @@ var setupSearchHistory = function() {
 
 // Update/New Search History
 var updateSearchHistory = function(city) {
-    let searchHistory = JSON.parse(localStorage.getItem("searchHistory"));
+    var searchHistory = JSON.parse(localStorage.getItem("searchHistory"));
     searchHistory.unshift(city);
     searchHistory.pop();
     localStorage.setItem("searchHistory",JSON.stringify(searchHistory));
 
-    let listItems = $(".list-group-item");
+    var listItems = $(".list-group-item");
 
     for (l in listItems) {
         listItems[l].textContent = searchHistory[l];
@@ -107,24 +107,22 @@ var updateUVIndex = function(val) {
     if (val < 3) {
         uvIndexEl.addClass("lowuv");
     } else if (val < 6) {
-        uvIndexEl.addClass("moderateuv text-light p-2 rounded");
+        uvIndexEl.addClass("moderateuv");
     } else if (val < 8) {
-        uvIndexEl.addClass("highuv text-light p-2 rounded");
+        uvIndexEl.addClass("highuv");
     } else if (val < 11) {
-        uvIndexEl.addClass("veryhighuv text-light p-2 rounded");
+        uvIndexEl.addClass("veryhighuv");
     } else {
-        uvIndexEl.addClass("extremeuv text-light p-2 rounded");
+        uvIndexEl.addClass("extremeuv");
     };
 };
 
 
-// NOTE
+// API/Fetch Function
 var getCurrentWeather = function(cityName) {
-    
     var apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&units=imperial&appid=" + myApiKey;
 
     fetch(apiUrl).then(function(response) {
-        // only continue if valid city data
         if (response.ok) {
             response.json().then(function(response) {
                 var cityContainerEl = $("#currentCity");
@@ -132,7 +130,7 @@ var getCurrentWeather = function(cityName) {
                 updateSearchHistory(cityName);
 
                 var location = updateWeather(response);
-                get5DayForecast(cityName);
+                getForecast(cityName);
                 
                 var apiUrlUV = "https://api.openweathermap.org/data/2.5/uvi?lat=" + location.lat  + "&lon=" + location.long + "&appid=" + myApiKey;
                 return fetch(apiUrlUV);
@@ -142,35 +140,30 @@ var getCurrentWeather = function(cityName) {
                 });
             });
         } else {
-            alert("City not found");
+            alert("City not recognized!");
         };
     }).catch(function(error) {
-        alert("Unable to connect to OpenWeather");
+        alert("Unable to connect to servers!");
     })
 };
 
 
-// NOTE
-var get5DayForecast = function(cityName) {
+// Upcoming Week Forecast Function
+var getForecast = function(cityName) {
+
     var forecastContainerEl = $("#day-forecast");
-    // clear any existing data
     forecastContainerEl.html("");
     
     var apiUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" + cityName + "&units=imperial&appid=" + myApiKey;
 
     fetch(apiUrl).then(function(response) {
-        // dont need if response ok since already checked earlier
         response.json().then(function(response) {
-            // build 
-            // variable to hold index of the first date change
             var idx = getIndex(response);
     
             for (i=0;i<5;i++) {
-                // based on the index value above, find the index value for the 5 days (add 4 so the printed data values are for the middle of the day)
                 var actualIdx = i * 8 + idx + 4;
                 if (actualIdx>39) {actualIdx = 39};
     
-                // get data from api at Unix and convert
                 var timeCodeUnix = response.list[actualIdx].dt;
                 var time = new Date(timeCodeUnix*1000).toLocaleDateString("en-US");
                 var icon = response.list[actualIdx].weather[0].icon;
@@ -193,12 +186,12 @@ var get5DayForecast = function(cityName) {
             }
         });
     }).catch(function(error) {
-        alert("Unable to connect to OpenWeather");
+        alert("Unable to connect to servers!");
     })
 };
 
 
-// NOTE
+// Submit Function
 var formSubmitHandler = function(event) {
     target = $(event.target);
     targetId = target.attr("id");
@@ -206,13 +199,13 @@ var formSubmitHandler = function(event) {
     if (targetId === "citySearchList") {
         var city = target.text();
     } else if (targetId === "search-submit") {
-        var city = $("#citySearch").val();
+        var city = $("#searchCities").val();
     };
 
     if (city) {
         getCurrentWeather(city);
     } else {
-        alert("please enter a city");
+        alert("Enter the city name!");
     }
 
     target.blur();
@@ -224,16 +217,16 @@ setupSearchHistory();
 getCurrentWeather("New York");
 
 
-$("button").click(formSubmitHandler);
 
-$('#citySearch').keypress(function(event){
+$("button").click(formSubmitHandler);
+$('#searchCities').keypress(function(event){
     var keycode = (event.keyCode ? event.keyCode : event.which);
     if(keycode == '13'){
-        var city = $("#citySearch").val();
+        var city = $("#searchCities").val();
         if (city) {
             getCurrentWeather(city);
         } else {
-            alert("please enter a city");
+            alert("Enter the city name!");
         }
     }
 });
