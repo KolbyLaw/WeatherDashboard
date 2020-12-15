@@ -2,9 +2,9 @@
 ### Website can be viewed at: https://kolbylaw.github.io/WeatherDashboard/
 
 Created or performed updates to index.html, style.css, and script.js, including the following: 
-- 
-- 
-- 
+- Setup API/Fetch to OpenWeather
+- Basic page structure via HTML
+- Display/Styling primarily via style.css and bootstrap.
 - Added localStorage functionality
 
 #### Selected City Forecast Information:

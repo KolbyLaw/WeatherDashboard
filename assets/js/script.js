@@ -1,6 +1,5 @@
 // Global Variables/Constants
 const myApiKey = "d4e9b521bb7318f9f92d1d45d2fc7aa3";
-const userFormEl = $("#searchCities");
 
 
 // Pull Local Storage/Generate New Search History
@@ -78,7 +77,7 @@ var updateWeather = function(response) {
 }; 
 
 
-// NOTE
+// NOTE PLACEHOLDER
 var getIndex = function(response) {
     var idx = 0
     for (i=1;i<response.list.length;i++) {
