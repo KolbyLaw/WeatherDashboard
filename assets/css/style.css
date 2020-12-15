@@ -1,0 +1,34 @@
+.lowuv {
+    background-color: darkgreen;
+    padding: 5px;
+    color: white;
+    border-radius: 5px;
+}
+
+.moderateuv {
+    background-color: yellow;
+    padding: 5px;
+    color: white;
+    border-radius: 5px;
+}
+
+.highuv {
+    background-color: orange;
+    padding: 5px;
+    color: white;
+    border-radius: 5px;
+}
+
+.veryhighuv {
+    background-color: red;
+    padding: 5px;
+    color: white;
+    border-radius: 5px;
+}
+
+.extremeuv {
+    background-color: purple;
+    padding: 5px;
+    color: white;
+    border-radius: 5px;
+}

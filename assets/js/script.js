@@ -1,3 +1,4 @@
+// Global Variables/Constants
 const myApiKey = "d4e9b521bb7318f9f92d1d45d2fc7aa3";
 const userFormEl = $("#searchCities");
 
@@ -42,10 +43,43 @@ var updateSearchHistory = function(city) {
 }
 
 
+// Main Weather Update Function
+var updateWeather = function(response) {
+
+    var currentTemp = response.main.temp;
+    var currentHumidity = response.main.humidity;
+    var currentWindSpeed = response.wind.speed;
+    var currentTimeCodeUnix = response.dt;
+    var currentDate = new Date(currentTimeCodeUnix*1000).toLocaleDateString("en-US");
+    var currentIcon = response.weather[0].icon;
+    
+    var windSpeedEl = $("#currentWindSpeed");
+    var dateEl = $("#currentDate");
+    var tempEl = $("#currentTemp");
+    var humidityEl = $("#currentHumidity");
+    var iconEl = $("#currentIcon");
+    
+    // Update Page Values
+    dateEl.text(currentDate);
+    tempEl.text(currentTemp);
+    humidityEl.text(currentHumidity);
+    windSpeedEl.text(currentWindSpeed);
+    iconEl.attr("src", "https://openweathermap.org/img/w/" + currentIcon + ".png");
+
+    var currentTimeCodeUnix = response.dt;
+    var s = new Date(currentTimeCodeUnix*1000).toLocaleDateString("en-US")
+
+    var locationArr = {
+        lat: response.coord.lat,
+        long: response.coord.lon
+    }
+    
+    return locationArr;
+}; 
+
+
 // NOTE
 var getIndex = function(response) {
-    // takes the json response data from the api fetch and returns the index value where the day changes
-    // data is reported every 3 hours
     var idx = 0
     for (i=1;i<response.list.length;i++) {
         var currentTime = new Date(response.list[i].dt*1000);
@@ -63,57 +97,23 @@ var getIndex = function(response) {
 };
 
 
-// NOTE
-var updateCurrentWeather = function(response) {
-    // grab html elements
-    var dateEl = $("#currentDate");
-    var tempEl = $("#currentTemp");
-    var humidityEl = $("#currentHumidity");
-    var windSpeedEl = $("#currentWindSpeed");
-    var iconEl = $("#currentIcon");
-
-    // parse desired data from fetch response
-    var currentTemp = response.main.temp;
-    var currentHumidity = response.main.humidity;
-    var currentWindSpeed = response.wind.speed;
-    var currentTimeCodeUnix = response.dt;
-    var currentDate = new Date(currentTimeCodeUnix*1000).toLocaleDateString("en-US");
-    var currentIcon = response.weather[0].icon;
-    
-    // assign data to html
-    dateEl.text(currentDate);
-    tempEl.text(currentTemp);
-    humidityEl.text(currentHumidity);
-    windSpeedEl.text(currentWindSpeed);
-    iconEl.attr("src", "https://openweathermap.org/img/w/" + currentIcon + ".png");
-
-    // print data to screen
-    var currentTimeCodeUnix = response.dt;
-    var s = new Date(currentTimeCodeUnix*1000).toLocaleDateString("en-US")
-
-    // get UV Index using
-    var locationArr = {
-        lat: response.coord.lat,
-        long: response.coord.lon
-    }
-    
-    return locationArr;
-}; 
-
-
-// NOTE
+// UV Index Value Update
 var updateUVIndex = function(val) {
-    // get current UV value and style element accordingly
-    var uvEl = $("#currentUV");
-    uvEl.text(val);
-    uvEl.removeClass();
+    var uvIndexEl = $("#currentUV");
+    uvIndexEl.text(val);
+    uvIndexEl.removeClass();
 
+    // Set Background Color/Warning Indicator
     if (val < 3) {
-        uvEl.addClass("bg-success text-light p-2 rounded");
+        uvIndexEl.addClass("lowuv");
     } else if (val < 6) {
-        uvEl.addClass("bg-warning text-light p-2 rounded");
+        uvIndexEl.addClass("moderateuv text-light p-2 rounded");
+    } else if (val < 8) {
+        uvIndexEl.addClass("highuv text-light p-2 rounded");
+    } else if (val < 11) {
+        uvIndexEl.addClass("veryhighuv text-light p-2 rounded");
     } else {
-        uvEl.addClass("bg-danger text-light p-2 rounded");
+        uvIndexEl.addClass("extremeuv text-light p-2 rounded");
     };
 };
 
@@ -131,7 +131,7 @@ var getCurrentWeather = function(cityName) {
                 cityContainerEl.text(cityName);
                 updateSearchHistory(cityName);
 
-                var location = updateCurrentWeather(response);
+                var location = updateWeather(response);
                 get5DayForecast(cityName);
                 
                 var apiUrlUV = "https://api.openweathermap.org/data/2.5/uvi?lat=" + location.lat  + "&lon=" + location.long + "&appid=" + myApiKey;
